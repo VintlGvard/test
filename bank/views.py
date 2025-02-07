@@ -48,3 +48,25 @@ class LoginUserView(APIView):
             token = token_object if token_object else token_created
             return Response({'token': token.key}, status=status.HTTP_200_OK)
         return Response({'error': 'Не правильный логин или пароль'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutUserView(ListAPIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            request.user.auth_token.delete()
+        except:
+            return Response(
+                {
+                    'error':{
+                        "code": 401,
+                        "message": "Logout failed"
+                    }
+                }
+            ,status=status.HTTP_401_UNAUTHORIZED)
+
+        logout(request)
+        return Response({
+            'data':{
+                'message': 'logout'
+            }
+        }, status=status.HTTP_200_OK)
