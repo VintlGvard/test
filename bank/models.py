@@ -21,16 +21,18 @@ class Transaction(models.Model):
         ('deposit', 'Пополнение'),
         ('payment', 'Оплата')
     )
-    account = models.ForeignKey(to=SavingsAccounts,on_delete=models.CASCADE, related_name='transactions')
+    account = models.ForeignKey(to=SavingsAccounts, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        cashback = float(self.amount) * 0.01
         if self.transaction_type == 'payment':
-            cashback = float(self.amount)*0.01
-            self.account.client.cashback_balance+=cashback
-            self.account.save()
+            self.account.client.cashback_balance = float(self.account.client.cashback_balance) - cashback
+        else:
+            self.account.client.cashback_balance = float(self.account.client.cashback_balance) + cashback
+        self.account.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
