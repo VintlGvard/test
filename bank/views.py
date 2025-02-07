@@ -1,7 +1,8 @@
+from django.contrib.auth import logout
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .serializers import UserRegisterSerializer, UserLoginSerializer
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.views import APIView
 from .models import Client
 from rest_framework.authtoken.models import Token
@@ -48,7 +49,6 @@ class LoginUserView(APIView):
             token = token_object if token_object else token_created
             return Response({'token': token.key}, status=status.HTTP_200_OK)
         return Response({'error': 'Не правильный логин или пароль'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class LogoutUserView(ListAPIView):
     def get(self, request, *args, **kwargs):
